@@ -1,19 +1,27 @@
 plugins {
     id("java")
+    `maven-publish`
 }
+// 참고 : https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry
 
-group = "com"
+group = "com.hava12.custom-checkstyle"
 version = "1.0-SNAPSHOT"
 
-repositories {
-    mavenCentral()
-}
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/hava12/custom-checkstyle")
+            credentials {
+                username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+            }
+        }
+    }
 
-dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-}
-
-tasks.test {
-    useJUnitPlatform()
+    publications {
+        register<MavenPublication>("gpr") {
+            from(components["java"])
+        }
+    }
 }
